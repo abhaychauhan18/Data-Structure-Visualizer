@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infix To Prefix Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            height: 400px;
+            background: #dfe6e9; /* Changed to a more professional color */
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            border: 2px solid #2ecc71; /* Border color */
+        }
+
+        p {
+            padding: 20px;
+            text-align: center;
+            font-family: ubuntu;
+            font-weight: bolder;
+            font-size: 20px;
+        }
+
+        .number, .evaluate, .reverse {
+            padding: 5px 10px;
+        }
+        .number {
+            width: 300px;
+        }
+
+        .note {
+            padding: 5px;
+            margin-top: 5px;
+            background: pink;
+            display: inline-block;
+            color: black;
+        }
+
+        .reverse {
+            background: lightgreen;
+            margin: 5px 10px;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #3498db; /* Button color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #2980b9; /* Darker blue on hover */
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Infix To Prefix Visualizer</h1>
+    <canvas class='grid' width="1000" height="550"></canvas>
+    <div>
+        <span class='reverse'></span>
+        <input class="number" placeholder="Infix expression"></input>
+        <button class="evaluate">Evaluate</button>
+    </div>
+    <div class="note">
+        <b>Note: </b>Infix expression should only contain &nbsp;&nbsp;&nbsp;<b>a, b, ^, /, *, +, -, (,  )</b>
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>WHAT IS INFIX TO PREFIX CONVERSION?</summary>
+            <p>
+                Infix to prefix conversion is the process of converting an expression from infix notation (where operators are placed between operands) to prefix notation (where operators precede their operands). For example, the infix expression "A + B" becomes "+ A B".
+            </p>
+        </details>
+
+        <details>
+            <summary>HOW TO CONVERT INFIX TO PREFIX?</summary>
+            <p>
+                To convert an infix expression to prefix, you can use a modified version of the Shunting Yard algorithm. The algorithm uses a stack to hold operators and ensures that they are output in the correct order.
+            </p>
+            <ul>
+                <li><strong>Step 1:</strong> Reverse the infix expression.</li>
+                <li><strong>Step 2:</strong> Replace '(' with ')' and vice versa.</li>
+                <li><strong>Step 3:</strong> Use the Shunting Yard algorithm to convert the modified expression to postfix.</li>
+                <li><strong>Step 4:</strong> Reverse the postfix expression to get the prefix expression.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>APPLICATIONS OF INFIX TO PREFIX CONVERSION</summary>
+            <ul>
+                <li>Used in compilers to parse expressions.</li>
+                <li>Evaluating expressions in programming languages.</li>
+                <li>Converting expressions for stack-based evaluation.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>TIME AND SPACE COMPLEXITIES</summary>
+            <ul>
+                <li><strong>Time Complexity:</strong> O(n) - The algorithm processes each token in the expression once.</li>
+                <li><strong>Space Complexity:</strong> O(n) - The stack may hold all operators in the worst case.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // Main
+        let ctx = document.querySelector("canvas").getContext("2d");
+        let time_delay = 1000;
+        let str = "ab^/*+-()";
+        let priority = {
+            "(": 0, 
+            "+": 1,
+            "-": 1,
+            "/": 2,
+            "*": 2,
+            "^": 3
+        };
+
+        init();
+
+        // Utility
+        function init() {
+            addListeners();
+        }
+
+        function addListeners() {
+            document.querySelector(".evaluate").addEventListener("click", () => {
+                let val = document.querySelector(".number").value;
+                
+                // FILTERING THE STRING
+                if(val.length > 20 || val.length <= 0){
+                    alert("Keep the length of expression less than 21 and greater than 0");
+                    return;
+                }
+                for(let i = 0; i < val.length; i++) {
+                    let count = 0;
+                    for(let j = 0; j < str.length; j++) {
+                        if(val[i] == str[j]) {
+                            count++; break;
+                        }
+                    }
+                    if(count == 0) {
+                        alert("Unknown symbol detected");
+                        return;
+                    }
+                }
+                document.querySelector(".evaluate").disabled = true;
+                let p = "";
+                for(let i = val.length - 1; i > -1; i--) {
+                    if(val[i] == "(") {
+                        p += ")";
+                    } else if(val[i] == ")") {
+                        p += "(";
+                    } else {
+                        p += val[i];
+                    }
+                }
+                document.querySelector(".reverse").innerText = p;
+                infixToPrefix(p);
+            });
+        }
+
+        async function drawAll(i, string, stack, prefix) {
+            let height = ctx.canvas.height / 21;
+            let x = 0;
+            let y = i * height;
+            ctx.beginPath();
+            ctx.fillStyle = "black";
+            ctx.fillRect(x, y, 100, height);
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "lightgreen";
+            ctx.strokeRect(x, y, 100, height);
+            ctx.font = "bolder 12px ubuntu";
+            if(string.length == 0)
+                ctx.fillText("", x + 100 / 2, y + height / 2);
+            else
+                ctx.fillText(string[i], x + 100 / 2, y + height / 2);
+
+            let w = (ctx.canvas.width - 300) / 20;
+
+            for(let i = 0; i < 20; i++) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(100 + i * w, y, w, height);
+                ctx.strokeStyle = "lightgreen";
+                ctx.strokeRect(100 + i * w, y, w, height);
+            }
+
+            for(let i = 0; i < stack.length; i++) {
+                ctx.fillStyle = "white";
+                ctx.font = "bolder 12px ubuntu";
+                ctx.fillText(stack[i], 100 + i * w + w / 2, y + height / 2);
+            }
+            ctx.fillStyle = "black";
+            ctx.fillRect(ctx.canvas.width - 200, y, 200, height);
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "lightgreen";
+            ctx.strokeRect(ctx.canvas.width - 200, y, 200, height);
+            ctx.font = "bolder 12px ubuntu";
+            ctx.fillText(prefix, ctx.canvas.width - 200 + 50, y + height / 2);
+            ctx.closePath();
+        }
+
+        async function infixToPrefix(string) {
+            let prefix = "";
+            let stack = [];
+            let i;
+            for(i = 0; i < string.length; i++) {
+                let symbol = string[i];
+                if(symbol == 'a' || symbol == 'b') {
+                    prefix += symbol;
+                } else if(stack.length == 0) {
+                    stack.push(symbol);
+                } else if(symbol == "(") {
+                    stack.push("(");
+                } else if(symbol == ")") {
+                    while(stack[stack.length - 1] != "(") {
+                        prefix += stack.pop();
+                    }
+                    stack.pop();
+                } else {
+                    while(stack.length != 0 && priority[symbol] <= priority[stack[stack.length - 1]]) {
+                        prefix += stack.pop();
+                    }
+                    stack.push(symbol);
+                }
+                await sleep(time_delay).then(() => {
+                    drawAll(i, string, stack, prefix);
+                });
+            }
+
+            while(stack.length != 0) {
+                prefix += stack.pop();
+                await sleep(time_delay).then(() => {
+                    drawAll(i, "", stack, prefix);
+                });
+                i++;
+            }
+
+            // Reverse the prefix string
+            let reversedPrefix = "";
+            for (let ii = 0; ii < prefix.length; ii++) {
+                reversedPrefix += prefix[prefix.length - 1 - ii];
+            }
+            await sleep(time_delay).then(() => {
+                drawAll(i, "", stack, reversedPrefix);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

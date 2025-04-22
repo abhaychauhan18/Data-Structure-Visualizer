@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Sort Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            height: 400px;
+            background: #dfe6e9;
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            border: 2px solid #2ecc71;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .controls input {
+            padding: 5px 10px;
+            width: 300px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #2980b9;
+        }
+
+        .note {
+            padding: 5px;
+            margin-top: 5px;
+            background: pink;
+            display: inline-block;
+            color: black;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Merge Sort Visualizer</h1>
+    <canvas class='grid' id="canvas" width="1000" height="400"></canvas>
+    <div class="controls">
+        <input class="number" placeholder="Enter number of elements (1-20)"></input>
+        <button class="generate">Generate</button>
+        <button class="sort">Sort</button>
+    </div>
+    <div class="note">
+        <b>Note: </b>Enter the number of elements to generate a random array.
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is Merge Sort?</summary>
+            <p>
+                Merge Sort is a divide-and-conquer algorithm that sorts an array by recursively dividing it into two halves, sorting each half, and then merging the sorted halves back together. It is efficient and has a guaranteed time complexity of O(n log n).
+            </p>
+        </details>
+
+        <details>
+            <summary>How does Merge Sort work?</summary>
+            <p><strong>Divide:</strong> The array is divided into two halves until each subarray contains a single element. This is done recursively.</p>
+            <p><strong>Conquer:</strong> Each half is sorted independently. Since the base case is a single element, it is inherently sorted.</p>
+            <p><strong>Combine:</strong> The sorted halves are merged back together. During this process, the elements are compared, and the smaller elements are placed in the correct order in the merged array.</p>
+        </details>
+
+        <details>
+            <summary>Applications of Merge Sort</summary>
+            <ul>
+                <li>Sorting large datasets efficiently.</li>
+                <li>Used in external sorting algorithms where data is too large to fit in memory.</li>
+                <li>Useful for linked lists as it does not require random access.</li>
+                <li>Can be used in parallel processing to sort data across multiple processors.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Time Complexity:</strong> O(n log n) - This is the time complexity for the best, average, and worst cases.</li>
+                <li><strong>Space Complexity:</strong> O(n) - Merge Sort requires additional space for the temporary arrays used during the merge process.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // Main
+        let arr = [];
+        let ctx = document.querySelector("#canvas").getContext("2d");
+        let timeDelay = 500; // Delay for visualization
+
+        init();
+
+        // Utility Functions
+        function init() {
+            addListeners();
+        }
+
+        function addListeners() {
+            document.querySelector(".generate").addEventListener("click", () => {
+                let numElements = parseInt(document.querySelector(".number").value);
+                if (numElements < 1 || numElements > 20) {
+                    alert("Please enter a number between 1 and 20.");
+                    return;
+                }
+                generateArray(numElements);
+                drawArray();
+            });
+
+            document.querySelector(".sort").addEventListener("click", () => {
+                mergeSort(arr, 0, arr.length - 1);
+            });
+        }
+
+        function generateArray(numElements) {
+            arr = [];
+            for (let i = 0; i < numElements; i++) {
+                arr.push(Math.floor(Math.random() * 100) + 1); // Random numbers between 1 and 100
+            }
+        }
+
+        function drawArray() {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
+            let rectWidth = 40;
+            let rectHeight = 30;
+            let startX = 10;
+            let startY = (ctx.canvas.height - rectHeight) / 2;
+
+            // Draw the array elements
+            arr.forEach((element, index) => {
+                ctx.fillStyle = "lightblue";
+                ctx.fillRect(startX + index * (rectWidth + 10), startY, rectWidth, rectHeight);
+                ctx.fillStyle = "black";
+                ctx.fillText(element, startX + index * (rectWidth + 10) + rectWidth / 2 - 10, startY + rectHeight / 2 + 5);
+            });
+        }
+
+        async function mergeSort(array, left, right) {
+            if (left < right) {
+                let mid = Math.floor((left + right) / 2);
+                await mergeSort(array, left, mid);
+                await mergeSort(array, mid + 1, right);
+                await merge(array, left, mid, right);
+            }
+        }
+
+        async function merge(array, left, mid, right) {
+            let leftArray = array.slice(left, mid + 1);
+            let rightArray = array.slice(mid + 1, right + 1);
+            let i = 0, j = 0, k = left;
+
+            while (i < leftArray.length && j < rightArray.length) {
+                if (leftArray[i] <= rightArray[j]) {
+                    array[k] = leftArray[i];
+                    i++;
+                } else {
+                    array[k] = rightArray[j];
+                    j++;
+                }
+                k++;
+                drawArray();
+                await sleep(timeDelay);
+            }
+
+            while (i < leftArray.length) {
+                array[k] = leftArray[i];
+                i++;
+                k++;
+                drawArray();
+                await sleep(timeDelay);
+            }
+
+            while (j < rightArray.length) {
+                array[k] = rightArray[j];
+                j++;
+                k++;
+                drawArray();
+                await sleep(timeDelay);
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

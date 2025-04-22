@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Linear Search Visualizer</title>
+	<style>
+		/* General Reset */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			color: #333;
+		}
+
+		.container {
+			text-align: center;
+			background: white;
+			padding: 2rem;
+			border-radius: 15px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+			max-width: 1200px;
+			width: 90%;
+			margin: 2rem auto;
+		}
+
+		h1 {
+			font-size: 2.5rem;
+			margin-bottom: 1.5rem;
+			color: #2c3e50;
+			font-weight: 600;
+		}
+
+		.grid {
+			width: 100%;
+			height: 300px;
+			background: #ecf0f1;
+			border-radius: 10px;
+			position: relative;
+			margin: 2rem auto;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			align-items: center;
+			padding: 10px;
+			overflow: hidden;
+			box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.array-element {
+			width: 60px;
+			height: 60px;
+			background: #3498db;
+			color: white;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 1.2rem;
+			font-weight: bold;
+			border-radius: 8px;
+			margin: 5px;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.array-element.highlight {
+			background: #e74c3c;
+			transform: scale(1.1);
+			animation: pulse 1s infinite;
+		}
+
+		@keyframes pulse {
+			0% { transform: scale(1); }
+			50% { transform: scale(1.1); }
+			100% { transform: scale(1); }
+		}
+
+		.array-element.found {
+			background: #2ecc71;
+			transform: scale(1.1);
+		}
+
+		.controls {
+			display: flex;
+			justify-content: center;
+			gap: 1rem;
+			margin-top: 2rem;
+		}
+
+		.controls input {
+			padding: 0.8rem;
+			font-size: 1rem;
+			border: 1px solid #bdc3c7;
+			border-radius: 8px;
+			width: 150px;
+			transition: border-color 0.3s ease;
+		}
+
+		.controls input:focus {
+			border-color: #3498db;
+			outline: none;
+		}
+
+		.controls button {
+			padding: 0.8rem 1.5rem;
+			font-size: 1rem;
+			font-weight: bold;
+			color: white;
+			background: #2ecc71;
+			border: none;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background 0.3s ease, transform 0.2s ease;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.controls button:hover {
+			background: #27ae60;
+			transform: translateY(-2px);
+		}
+
+		.controls button:active {
+			transform: translateY(0);
+		}
+
+		.description {
+			text-align: left;
+			margin-top: 2rem;
+			background: #f9f9f9;
+			padding: 1.5rem;
+			border-radius: 10px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		details {
+			margin-bottom: 1rem;
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			padding: 1rem;
+			transition: all 0.3s ease;
+		}
+
+		details[open] {
+			background: #f1f1f1;
+		}
+
+		summary {
+			font-size: 1.2rem;
+			font-weight: bold;
+			color: #2c3e50;
+			cursor: pointer;
+			transition: color 0.3s ease;
+		}
+
+		summary:hover {
+			color: #3498db;
+		}
+
+		details p {
+			margin-top: 0.5rem;
+			font-size: 1rem;
+			line-height: 1.6;
+			color: #555;
+		}
+
+		details ul {
+			margin-top: 0.5rem;
+			padding-left: 1.5rem;
+		}
+
+		details ul li {
+			margin-bottom: 0.5rem;
+		}
+
+		img {
+			max-width: 100%;
+			height: auto;
+			border-radius: 8px;
+			margin-top: 1rem;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			transition: transform 0.3s ease;
+		}
+
+		img:hover {
+			transform: scale(1.02);
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Linear Search Visualizer</h1>
+		<div class="grid" id="grid"></div>
+		<div class="controls">
+			<input type="number" id="search-input" placeholder="Enter element to search">
+			<button id="search-btn">Search</button>
+		</div>
+
+		<!-- Description Section -->
+		<div class="description">
+			<details>
+				<summary>What is Linear Search?</summary>
+				<p>
+					Linear search is a simple searching algorithm that checks every element in a list one by one until it finds the target element. It is the most basic search algorithm and works well for small datasets.
+				</p>
+			</details>
+
+			<details>
+				<summary>How Does Linear Search Work?</summary>
+				<p>
+					Linear search works by iterating through each element in the array and comparing it with the target value. If a match is found, the index of the element is returned. If no match is found, the algorithm returns -1.
+				</p>
+				<ul>
+					<li><strong>Step 1:</strong> Start from the first element.</li>
+					<li><strong>Step 2:</strong> Compare the current element with the target.</li>
+					<li><strong>Step 3:</strong> If a match is found, return the index.</li>
+					<li><strong>Step 4:</strong> If no match is found, move to the next element.</li>
+					<li><strong>Step 5:</strong> Repeat until the end of the array is reached.</li>
+				</ul>
+			</details>
+
+			<details>
+				<summary>Applications of Linear Search</summary>
+				<ul>
+					<li>Searching in small datasets.</li>
+					<li>Checking for the presence of an element in a list.</li>
+					<li>Used in scenarios where the data is unsorted.</li>
+				</ul>
+			</details>
+
+			<details>
+				<summary>Time and Space Complexities</summary>
+				<ul>
+					<li><strong>Time Complexity:</strong> O(n) - In the worst case, the algorithm checks every element.</li>
+					<li><strong>Space Complexity:</strong> O(1) - No additional space is required.</li>
+				</ul>
+			</details>
+		</div>
+	</div>
+
+	<script>
+		// Constants
+		const ARRAY_SIZE = 16;
+		const MAX_VALUE = 100;
+		const TIME_DELAY = 500;
+
+		// DOM Elements
+		const grid = document.getElementById('grid');
+		const searchInput = document.getElementById('search-input');
+		const searchBtn = document.getElementById('search-btn');
+
+		// Array Initialization
+		let arr = [];
+
+		// Initialize Array
+		function initializeArray() {
+			arr = [];
+			for (let i = 0; i < ARRAY_SIZE; i++) {
+				arr.push(Math.floor(Math.random() * MAX_VALUE) + 1);
+			}
+		}
+
+		// Render Array
+		function renderArray(highlightIndex = -1, foundIndex = -1) {
+			grid.innerHTML = '';
+			arr.forEach((value, index) => {
+				const element = document.createElement('div');
+				element.classList.add('array-element');
+				if (index === highlightIndex) element.classList.add('highlight');
+				if (index === foundIndex) element.classList.add('found');
+				element.textContent = value;
+				grid.appendChild(element);
+			});
+		}
+
+		// Linear Search Function
+		async function linearSearch(key) {
+			for (let i = 0; i < ARRAY_SIZE; i++) {
+				await sleep(TIME_DELAY);
+				if (arr[i] === key) {
+					renderArray(i, i);
+					alert(`Element found at index ${i}`);
+					return;
+				} else {
+					renderArray(i);
+				}
+			}
+			alert('Element not found');
+		}
+
+		// Sleep Function
+		function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
+		// Event Listeners
+		searchBtn.addEventListener('click', () => {
+			const key = parseInt(searchInput.value);
+			if (!isNaN(key)) {
+				searchBtn.disabled = true;
+				linearSearch(key).then(() => {
+					searchBtn.disabled = false;
+				});
+			} else {
+				alert('Please enter a valid number');
+			}
+		});
+
+		// Initial Render
+		initializeArray();
+		renderArray();
+	</script>
+</body>
+</html>

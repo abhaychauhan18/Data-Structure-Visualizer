@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counting Inversions Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            position: relative;
+            height: 400px;
+            background: lightgreen;
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            outline: 1px solid red;
+        }
+
+        p, p:nth-child(1) {
+            padding: 20px;
+            text-align: center;
+            font-weight: bolder;
+            font-size: 20px;
+        }
+
+        .arr__controllers {
+            max-width: 500px;
+            margin: auto;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .arr__visualize {
+            padding: 10px 30px;
+        }
+
+        .color__scheme > span {
+            display: block;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .color__scheme > span:nth-child(1) > span:nth-child(1) {
+            padding: 10px;
+            margin: 3px;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            background: lightgreen;
+        }
+
+        .color__scheme > span:nth-child(2) > span:nth-child(1) {
+            padding: 10px;
+            width: 10px;
+            margin: 3px;
+            height: 10px;
+            display: inline-block;
+            background: lightblue;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Counting Inversions Visualizer</h1>
+    <canvas class='grid' width='1000' height='400'></canvas>
+
+    <div class="arr__controllers">
+        <select class="select__value">
+            <option value="10">10ms</option>
+            <option value="100">100ms</option>
+            <option value="200">200ms</option>
+            <option value="500">500ms</option>
+            <option selected value="1000">1000ms</option>
+            <option value="2000">2000ms</option>
+        </select>
+        <div>
+            <span class="bilok">
+                <span>COUNT:</span>
+                <span class="bilok__value">0</span>
+            </span>
+            <button class="arr__visualize">Visualize</button>
+        </div>		
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is Counting Inversions?</summary>
+            <p>
+                Counting inversions is a technique used to determine how far a sequence is from being sorted. An inversion is a pair of elements in an array where the first element is greater than the second element and appears before it in the array.
+            </p>
+        </details>
+
+        <details>
+            <summary>How does Counting Inversions work?</summary>
+            <p><strong>Divide:</strong> The array is divided into two halves until each subarray contains a single element.</p>
+            <p><strong>Conquer:</strong> Each half is sorted independently, and during the merge process, the number of inversions is counted.</p>
+            <p><strong>Combine:</strong> The sorted halves are merged back together, and the total number of inversions is calculated based on the elements in the two halves.</p>
+        </details>
+
+        <details>
+            <summary>Applications of Counting Inversions</summary>
+            <ul>
+                <li>Measuring the degree of disorder in a dataset.</li>
+                <li>Used in sorting algorithms to optimize performance.</li>
+                <li>Analyzing the efficiency of sorting algorithms.</li>
+                <li>Inversion counting can be used in various data analysis tasks.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Time Complexity:</strong> O(n log n) - This is the time complexity for the best, average, and worst cases when using a modified merge sort.</li>
+                <li><strong>Space Complexity:</strong> O(n) - The space complexity is linear due to the temporary arrays used during the merge process.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // MAIN
+        let counters = 0;
+        let arr = [];
+        const max = 100;
+        const size = 16;
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext("2d");
+        const rect = { width: 60, height: 24 };
+        let timeDelay = 1000;
+        let counts = 0;
+
+        init();
+        animate();
+
+        // Utility Functions
+        function randomizeArray() {
+            for (let i = 0; i < size; i++) {
+                arr[i] = Math.floor(Math.random() * max + 1);
+            }
+        }
+
+        function init() {	
+            randomizeArray();
+            addListeners();
+            if (localStorage.getItem("array_sort_time")) {
+                timeDelay = +localStorage.getItem("array_sort_time");
+            }
+            document.querySelector(`[value="${timeDelay}"]`).selected = true;
+        }
+
+        function addListeners() {
+            document.querySelector(".arr__visualize").addEventListener("click", () => {
+                document.querySelector(".arr__visualize").disabled = true;
+                async function get() {
+                    await sleep(timeDelay).then(() => sort(0, size - 1));
+                    animate(-1, -1);
+                    assignBlockValue();
+                }
+                get();
+            });
+
+            document.querySelector(".select__value").addEventListener("change", (e) => {
+                let p = +e.target.value;
+                localStorage.setItem("array_sort_time", p);
+                window.location.reload();
+            });
+        }
+
+        function clear(x1 = 0, y1 = 0, width = canvas.width, height = canvas.height) {
+            ctx.fillStyle = 'lightgreen';
+            ctx.fillRect(x1, y1, width, height);
+        }
+
+        async function sort(low, high) {
+            if (low >= high) return;
+            let mid = Math.floor((low + high) / 2);
+            await sleep(timeDelay).then(() => {
+                animate(low, high);
+            });
+
+            await sort(low, mid);
+            await sort(mid + 1, high);
+            merge(low, mid, high);
+            await sleep(timeDelay).then(() => {
+                animate(low, high);
+            });
+        }
+
+        function merge(low, mid, high) {
+            let temp = [];
+            for (let i = 0; i < (high - low + 1); i++) temp.push(0);
+            let i = low;
+            let j = mid + 1;
+            let counter = 0;
+
+            while (i <= mid && j <= high) {
+                if (arr[i] <= arr[j]) {
+                    temp[counter] = arr[i];
+                    i++;
+                } else {
+                    counters += (mid - i + 1);
+                    assignBlockValue();
+                    temp[counter] = arr[j];
+                    j++;
+                }
+                counter++;
+            }
+
+            while (i <= mid) {
+                temp[counter++] = arr[i++];
+            }
+
+            while (j <= high) {
+                temp[counter++] = arr[j++];
+            }
+
+            counter = 0;
+            for (i = low; i <= high; i++) {
+                arr[i] = temp[counter++];
+            }
+        }
+
+        function assignBlockValue() {
+            document.querySelector(".bilok__value").innerText = counters;
+        }
+
+        function createCopyArray(arr) {
+            arr.forEach((e, i) => {
+                ctx.fillStyle = "black";	
+                ctx.fillRect(i * rect.width + i + 10, 15, rect.height - 4);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 15px ubuntu';
+                ctx.fillText(`${e}`, i * rect.width + i + rect.width / 2 + 10, rect.height + 5);
+                ctx.fillStyle = 'black';
+            });
+        }
+        
+        function line(x1, x2, y1, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function animate(m = -1, n = -1) {
+            clear(0, 40, canvas.width, canvas.height);
+            if (counts == 0) {
+                createCopyArray(arr);
+            }
+            counts++;
+            arr.forEach((e, i) => {
+                ctx.fillStyle = "black";
+                if (i >= m && i <= n) {
+                    ctx.fillStyle = "gray";
+                }
+                ctx.fillRect(i * rect.width + i + 10, canvas.height / 2, rect.width, rect.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 15px ubuntu';
+                ctx.fillText(`${e}`, i * rect.width + i + rect.width / 2 + 10, canvas.height / 2 + rect.height * (3 / 4));
+                ctx.fillStyle = 'black';
+            });
+
+            let p = [];
+            for (let i = 0; i < size; i++) {
+                p.push(i);
+            }
+
+            p.forEach((e, i) => {
+                ctx.fillStyle = "red";	
+                ctx.fillRect(i * rect.width + i + 10, canvas.height / 2 + 2 * rect.height, rect.width, rect.height * (3 / 4));
+                ctx.fillStyle = 'yellow';
+                ctx.font = 'bold 15px ubuntu';
+                ctx.fillText(`${e}`, i * rect.width + i + rect.width / 2 + 10, canvas.height / 2 + rect.height * (3 / 4) + (7.5 / 4) * rect.height);
+                ctx.fillStyle = 'black';
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Using Linked List Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            position: relative;
+            height: 500px;
+            background: lightgreen;
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            outline: 1px solid red;
+        }
+
+        p, p:nth-child(1) {
+            padding: 5px 20px;
+            text-align: center;
+            font-weight: bolder;
+            font-size: 20px;
+        }
+
+        .queue__controllers {
+            max-width: 500px;
+            margin: auto;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .dequeue, .enqueue {
+            padding: 10px 30px;
+        }
+
+        .color__scheme > span {
+            display: block;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .color__scheme > span:nth-child(1) > span:nth-child(1) {
+            padding: 10px;
+            margin: 3px;
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            background: lightblue;
+        }
+
+        .color__scheme > span:nth-child(2) > span:nth-child(1) {
+            padding: 10px;
+            width: 10px;
+            margin: 3px;
+            height: 10px;
+            display: inline-block;
+            background: lightgreen;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Queue Using Linked List Visualizer</h1>
+    <canvas class='grid' width='1000' height='400'></canvas>
+
+    <div class="queue__controllers">
+        <span class="color__scheme">
+            <span>
+                <span></span>
+                <span>FRONT</span>
+            </span>
+            <span>
+                <span></span>
+                <span>REAR</span>        
+            </span>
+        </span>
+        <button class="enqueue">Enqueue</button>
+        <button class="dequeue">Dequeue</button>            
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is a Queue?</summary>
+            <p>
+                A Queue is a linear data structure that follows the First In First Out (FIFO) principle. Elements can be added at the rear and removed from the front, making it suitable for scenarios where order matters.
+            </p>
+        </details>
+
+        <details>
+            <summary>How does a Queue work?</summary>
+            <p>
+                In this visualizer, you can enqueue elements at the rear of the queue and dequeue elements from the front. The visual representation updates dynamically to show the current state of the queue.
+            </p>
+        </details>
+
+        <details>
+            <summary>Applications of Queue</summary>
+            <ul>
+                <li>Task Scheduling: Used in operating systems to manage tasks.</li>
+                <li>Print Queue Management: Manages print jobs in printers.</li>
+                <li>Data Buffering: Used in streaming applications to manage data flow.</li>
+                <li>Graph Traversal: Used in algorithms like Breadth-First Search (BFS).</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Insertion (Enqueue):</strong> O(1) - Adding an element to the rear of the queue is done in constant time.</li>
+                <li><strong>Deletion (Dequeue):</strong> O(1) - Removing the front element is also done in constant time.</li>
+                <li><strong>Traversal:</strong> O(n) - To traverse the entire queue, it takes linear time.</li>
+                <li><strong>Space Complexity:</strong> O(n) - The space complexity is linear, where n is the number of elements in the queue.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // MAIN
+        let arr = [];
+        const max = 100;
+        const size = 7;
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext("2d");
+        const queue = [];
+        const rect = { width: 60, height: 24 };
+        let queueWidth = 200;
+
+        init();
+
+        // Utility Functions
+        function randomizeArray() {
+            arr = [];
+            for (let i = 0; i < size; i++) {
+                arr.push(Math.floor(Math.random() * max + 1));
+            }
+        }
+
+        function init() {    
+            randomizeArray();
+            createQueue();
+            document.querySelector(".enqueue").addEventListener("click", enqueue);
+            document.querySelector(".dequeue").addEventListener("click", dequeue);
+            animate();
+        }
+
+        function createQueue() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(canvas.width - queueWidth, 0, queueWidth, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(canvas.width - queueWidth, canvas.height - rect.height / 2 + 1, queueWidth, 1);
+            ctx.font = 'bold 10px ubuntu';	
+            ctx.fillText("QUEUE", canvas.width - queueWidth / 2 - 15, canvas.height - 1);
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = 'lightgreen';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animate() {
+            clearCanvas();
+            createQueue();
+            drawArray();
+            drawQueue();
+        }
+
+        function drawArray() {
+            arr.forEach((e, i) => {
+                ctx.fillStyle = "black";	
+                ctx.fillRect(i * rect.width + i + 10, canvas.height / 2, rect.width, rect.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 15px ubuntu';
+                ctx.fillText(`${e}`, i * rect.width + i + rect.width / 2 + 10, canvas.height / 2 + rect.height * (3 / 4));
+            });
+        }
+
+        function drawQueue() {
+            queue.forEach((e, i) => {
+                ctx.fillStyle = (i === 0) ? "lightblue" : (i === queue.length - 1) ? "lightgreen" : "white";
+                let h = canvas.height - rect.height - i * (rect.height / 2) - i - 4 - i * 7;
+                ctx.fillRect(canvas.width - queueWidth + 5, h, queueWidth - 10, rect.height / 2);
+                ctx.fillStyle = 'red';
+                ctx.font = 'bolder 10px ubuntu';
+                ctx.fillText(`${e}`, canvas.width - queueWidth / 2, h + rect.height / 4);
+            });
+        }
+
+        function enqueue() {
+            if (queue.length === size) {
+                alert("Queue is full");
+            } else if (arr.length === 0) {
+                alert("No element is present to enqueue");
+            } else {
+                queue.push(arr.shift());
+                animate();
+            }
+        }
+
+        function dequeue() {
+            if (queue.length === 0) {
+                if (arr.length === 0) {
+                    alert("Empty queue can't dequeue further");
+                } else {
+                    alert("Empty queue, please enqueue something to dequeue");
+                }
+            } else {
+                queue.shift();
+                animate();
+            }
+        }
+    </script>
+</body>
+</html>

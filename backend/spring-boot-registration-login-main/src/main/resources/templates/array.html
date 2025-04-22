@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Array</title>
+	<style>
+		html, * {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			overflow: hidden;
+		}
+
+		body {
+			min-height: 100vh;
+		}
+		.grid {
+			max-width: 600px;
+			position: relative;
+			padding: 10px;
+			margin: 50px auto;
+			/* outline: 2px solid green; */
+			outline: 2px solid #3498db; /* Changed to a soft blue color */
+		}
+
+		p:nth-child(1) {
+			padding: 20px;
+			text-align: center;
+			font-family: ubuntu;
+			font-weight: bolder;
+			font-size: 20px;
+		}
+
+		.algo {
+			display: block;
+			padding: 10px;
+			/* background: lightgreen; */
+			background: #3498db; /* Changed to a soft blue color */
+			margin: 10px;
+			color: white; /* Text color for better contrast */
+			box-shadow: -5px 10px 5px rgba(0, 0, 0, .2);
+		}
+
+		
+		.algo:hover {
+			background: #2980b9; /* Darker shade on hover */
+		}
+
+
+		.algo__link {
+			text-decoration: none;
+			/* color: purple; */
+			color: white; /* Ensure link text is white */
+			font-size: 20px;
+			font-weight: bolder;
+			text-shadow: 10px 10px 10px rgba(0, 0, 0, .3);
+		}
+
+	</style>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+	<p class='heading'>Array</p>
+	<div class='grid'></div>
+
+	</div>
+
+	<div class="circular__read">
+		
+	</div>
+	<script>
+
+// Main
+		let grid = document.querySelector('.grid');
+		let algo = [
+			{
+				name: 'Array ADT',
+				link: `/array_adt`
+			},
+			{
+				name: 'Linear Search',
+				link: `/linear`
+			},
+			
+			
+		]
+		init();
+
+// Utility function 
+
+		function init() {
+			algo.forEach((e, i) => {
+				let html = `
+						<a href="${e.link}" class="algo__link">${e.name}</a>
+				`
+				let algo = document.createElement('div');
+				algo.classList.add('algo');
+				algo.innerHTML = html;
+				grid.appendChild(algo);
+			})
+		}
+	</script>
+</body>
+</html>

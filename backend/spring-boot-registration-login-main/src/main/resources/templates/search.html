@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Binary Search</title>
+	<style>
+		html, * {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			overflow: hidden;
+		}
+
+		body {
+			min-height: 100vh;
+			background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+		}
+		
+		.grid {
+			max-width: 600px;
+			position: relative;
+			padding: 10px;
+			margin: 10px auto;
+			outline: 2px solid #3498db; /* Changed to a soft blue color */
+		}
+
+		p:nth-child(1) {
+			padding: 20px;
+			text-align: center;
+			font-family: ubuntu;
+			font-weight: bolder;
+			font-size: 20px;
+		}
+
+		.algo {
+			display: block;
+			padding: 10px;
+			background: #3498db; /* Changed to a soft blue color */
+			margin: 10px;
+			box-shadow: -5px 10px 5px rgba(0, 0, 0, .2);
+			color: white; /* Text color for better contrast */
+			border-radius: 5px;
+			text-decoration: none; /* Remove underline from links */
+		}
+
+		.algo:hover {
+			background: #2980b9; /* Darker shade on hover */
+		}
+
+		.algo__link {
+			text-decoration: none;
+			color: white; /* Ensure link text is white */
+			font-size: 20px;
+			font-weight: bolder;
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+		}
+	</style>
+</head>
+<body>
+	<p class='heading'>Binary Search</p>
+	<div class='grid'></div>
+
+	<div class="circular__read"></div>
+
+	<script>
+		// Main
+		let grid = document.querySelector('.grid');
+		let algo = [
+			{
+				name: 'Binary Search',
+				link: `/binary1`
+			},
+			{
+				name: "Start Point Of Rotated Sorted Array",
+				link: `/rotated_array`
+			},
+			{
+				name: "Find Peak Element",
+				link: `/peak_element`
+			},
+			
+		];
+
+		init();
+
+		// Utility function 
+		function init() {
+			algo.forEach((e, i) => {
+				let html = `
+						<a href="${e.link}" class="algo__link">${e.name}</a>
+				`;
+				let algoDiv = document.createElement('div');
+				algoDiv.classList.add('algo');
+				algoDiv.innerHTML = html;
+				grid.appendChild(algoDiv);
+			});
+		}
+	</script>
+	<!-- Code injected by live-server -->
+	<script>
+		// <![CDATA[  <-- For SVG support
+		if ('WebSocket' in window) {
+			(function () {
+				function refreshCSS() {
+					var sheets = [].slice.call(document.getElementsByTagName("link"));
+					var head = document.getElementsByTagName("head")[0];
+					for (var i = 0; i < sheets.length; ++i) {
+						var elem = sheets[i];
+						var parent = elem.parentElement || head;
+						parent.removeChild(elem);
+						var rel = elem.rel;
+						if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+							var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+							elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+						}
+						parent.appendChild(elem);
+					}
+				}
+				var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+				var address = protocol + window.location.host + window.location.pathname + '/ws';
+				var socket = new WebSocket(address);
+				socket.onmessage = function (msg) {
+					if (msg.data == 'reload') window.location.reload();
+					else if (msg.data == 'refreshcss') refreshCSS();
+				};
+				if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+					console.log('Live reload enabled.');
+					sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+				}
+			})();
+		}
+		else {
+			console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+		}
+		// ]]>
+	</script>
+</body>
+</html>

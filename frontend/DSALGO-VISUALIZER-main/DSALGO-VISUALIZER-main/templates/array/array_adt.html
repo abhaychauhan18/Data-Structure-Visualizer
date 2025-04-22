@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Array Visualizer</title>
+	<style>
+		/* General Reset */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Poppins', sans-serif;
+			background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			color: #333;
+		}
+
+		.container {
+			text-align: center;
+			background: white;
+			padding: 2rem;
+			border-radius: 15px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+			max-width: 1200px;
+			width: 90%;
+			margin: 2rem auto;
+		}
+
+		h1 {
+			font-size: 2.5rem;
+			margin-bottom: 1.5rem;
+			color: #2c3e50;
+			font-weight: 600;
+		}
+
+		.grid {
+			width: 100%;
+			height: 300px;
+			background: #ecf0f1;
+			border-radius: 10px;
+			position: relative;
+			margin: 2rem auto;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			align-items: center;
+			padding: 10px;
+			overflow: hidden;
+			box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.array-element {
+			width: 60px;
+			height: 60px;
+			background: #3498db;
+			color: white;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 1.2rem;
+			font-weight: bold;
+			border-radius: 8px;
+			margin: 5px;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.array-element.null {
+			background: #bdc3c7;
+			color: #333;
+		}
+
+		.array-element.highlight {
+			background: #e74c3c;
+			transform: scale(1.1);
+			animation: pulse 1s infinite;
+		}
+
+		@keyframes pulse {
+			0% { transform: scale(1); }
+			50% { transform: scale(1.1); }
+			100% { transform: scale(1); }
+		}
+
+		.controls {
+			display: flex;
+			justify-content: center;
+			gap: 1rem;
+			margin-top: 2rem;
+		}
+
+		button {
+			padding: 0.8rem 1.5rem;
+			font-size: 1rem;
+			font-weight: bold;
+			color: white;
+			background: #2ecc71;
+			border: none;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background 0.3s ease, transform 0.2s ease;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		button:hover {
+			background: #27ae60;
+			transform: translateY(-2px);
+		}
+
+		button:active {
+			transform: translateY(0);
+		}
+
+		.modal {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.7);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.3s ease;
+		}
+
+		.modal.active {
+			opacity: 1;
+			visibility: visible;
+		}
+
+		.modal-content {
+			background: white;
+			padding: 2rem;
+			border-radius: 10px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+			text-align: center;
+			animation: slideIn 0.3s ease;
+		}
+
+		@keyframes slideIn {
+			from { transform: translateY(-20px); opacity: 0; }
+			to { transform: translateY(0); opacity: 1; }
+		}
+
+		.modal-content label {
+			display: block;
+			margin-bottom: 1rem;
+			font-size: 1.1rem;
+			color: #333;
+		}
+
+		.modal-content input {
+			width: 100%;
+			padding: 0.8rem;
+			margin-bottom: 1rem;
+			border: 1px solid #bdc3c7;
+			border-radius: 8px;
+			font-size: 1rem;
+			transition: border-color 0.3s ease;
+		}
+
+		.modal-content input:focus {
+			border-color: #3498db;
+			outline: none;
+		}
+
+		.modal-content button {
+			background: #3498db;
+		}
+
+		.modal-content button:hover {
+			background: #2980b9;
+		}
+
+		.description {
+			text-align: left;
+			margin-top: 2rem;
+			background: #f9f9f9;
+			padding: 1.5rem;
+			border-radius: 10px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		details {
+			margin-bottom: 1rem;
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			padding: 1rem;
+			transition: all 0.3s ease;
+		}
+
+		details[open] {
+			background: #f1f1f1;
+		}
+
+		summary {
+			font-size: 1.2rem;
+			font-weight: bold;
+			color: #2c3e50;
+			cursor: pointer;
+			transition: color 0.3s ease;
+		}
+
+		summary:hover {
+			color: #3498db;
+		}
+
+		details p {
+			margin-top: 0.5rem;
+			font-size: 1rem;
+			line-height: 1.6;
+			color: #555;
+		}
+
+		details ul {
+			margin-top: 0.5rem;
+			padding-left: 1.5rem;
+		}
+
+		details ul li {
+			margin-bottom: 0.5rem;
+		}
+
+		img {
+			max-width: 100%;
+			height: auto;
+			border-radius: 8px;
+			margin-top: 1rem;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			transition: transform 0.3s ease;
+		}
+
+		img:hover {
+			transform: scale(1.02);
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Array Visualizer</h1>
+		<div class="grid" id="grid"></div>
+		<div class="controls">
+			<button id="insert-btn">Insert</button>
+			<button id="delete-btn">Delete</button>
+		</div>
+
+		<!-- Description Section -->
+		<div class="description">
+			<details>
+				<summary>What is an Array?</summary>
+				<p>
+					An array is a data structure consisting of a collection of elements, each identified by an index or key. It is one of the simplest and most widely used data structures in computer science. Arrays are used to store multiple values in a single variable, making it easier to manage and manipulate data.
+				</p>
+			</details>
+
+			<details>
+				<summary>How Does an Array Work?</summary>
+				<p>
+					Arrays work by storing elements in contiguous memory locations. Each element can be accessed directly using its index. The index typically starts at 0 (zero-based indexing) and goes up to the size of the array minus one.
+				</p>
+				<ul>
+					<li><strong>Insertion:</strong> To insert an element at a specific index, all elements after that index are shifted to the right.</li>
+					<li><strong>Deletion:</strong> To delete an element at a specific index, all elements after that index are shifted to the left.</li>
+				</ul>
+			</details>
+
+			<details>
+				<summary>Applications of Arrays</summary>
+				<ul>
+					<li>Storing and accessing sequential data.</li>
+					<li>Implementing other data structures like stacks, queues, and hash tables.</li>
+					<li>Used in sorting and searching algorithms.</li>
+					<li>Representing matrices and tables in mathematical computations.</li>
+				</ul>
+			</details>
+
+			<details>
+				<summary>Time and Space Complexities</summary>
+				<ul>
+					<li><strong>Access:</strong> O(1) - Direct access using index.</li>
+					<li><strong>Search:</strong> O(n) - Linear search in an unsorted array.</li>
+					<li><strong>Insertion:</strong> O(n) - Shifting elements is required.</li>
+					<li><strong>Deletion:</strong> O(n) - Shifting elements is required.</li>
+					<li><strong>Space:</strong> O(n) - Stores 'n' elements.</li>
+				</ul>
+			</details>
+		</div>
+	</div>
+
+	<!-- Insert Modal -->
+	<div class="modal" id="insert-modal">
+		<div class="modal-content">
+			<label for="insert-index">Index:</label>
+			<input type="number" id="insert-index" placeholder="Enter index" min="0" max="15">
+			<label for="insert-value">Value:</label>
+			<input type="number" id="insert-value" placeholder="Enter value">
+			<button id="insert-submit">Submit</button>
+		</div>
+	</div>
+
+	<!-- Delete Modal -->
+	<div class="modal" id="delete-modal">
+		<div class="modal-content">
+			<label for="delete-index">Index:</label>
+			<input type="number" id="delete-index" placeholder="Enter index" min="0" max="15">
+			<button id="delete-submit">Submit</button>
+		</div>
+	</div>
+
+	<script>
+		// Constants
+		const ARRAY_SIZE = 16;
+		const MAX_VALUE = 100;
+		const TIME_DELAY = 500;
+
+		// DOM Elements
+		const grid = document.getElementById('grid');
+		const insertBtn = document.getElementById('insert-btn');
+		const deleteBtn = document.getElementById('delete-btn');
+		const insertModal = document.getElementById('insert-modal');
+		const deleteModal = document.getElementById('delete-modal');
+		const insertSubmit = document.getElementById('insert-submit');
+		const deleteSubmit = document.getElementById('delete-submit');
+
+		// Array Initialization
+		let arr = Array(ARRAY_SIZE).fill(null);
+
+		// Render Array
+		function renderArray(highlightIndex = -1) {
+			grid.innerHTML = '';
+			arr.forEach((value, index) => {
+				const element = document.createElement('div');
+				element.classList.add('array-element');
+				if (value === null) element.classList.add('null');
+				if (index === highlightIndex) element.classList.add('highlight');
+				element.textContent = value === null ? '\\0' : value;
+				grid.appendChild(element);
+			});
+		}
+
+		// Insert Function
+		async function insert(index, value) {
+			if (arr[index] !== null) {
+				for (let i = ARRAY_SIZE - 1; i > index; i--) {
+					arr[i] = arr[i - 1];
+					renderArray(i - 1);
+					await sleep(TIME_DELAY);
+				}
+			}
+			arr[index] = value;
+			renderArray();
+		}
+
+		// Delete Function
+		async function deleteElement(index) {
+			for (let i = index; i < ARRAY_SIZE - 1; i++) {
+				arr[i] = arr[i + 1];
+				renderArray(i + 1);
+				await sleep(TIME_DELAY);
+			}
+			arr[ARRAY_SIZE - 1] = null;
+			renderArray();
+		}
+
+		// Sleep Function
+		function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
+		// Event Listeners
+		insertBtn.addEventListener('click', () => {
+			insertModal.classList.add('active');
+		});
+
+		deleteBtn.addEventListener('click', () => {
+			deleteModal.classList.add('active');
+		});
+
+		insertSubmit.addEventListener('click', () => {
+			const index = parseInt(document.getElementById('insert-index').value);
+			const value = parseInt(document.getElementById('insert-value').value);
+			if (index >= 0 && index < ARRAY_SIZE && !isNaN(value)) {
+				insertModal.classList.remove('active');
+				insert(index, value);
+			} else {
+				alert('Invalid input!');
+			}
+		});
+
+		deleteSubmit.addEventListener('click', () => {
+			const index = parseInt(document.getElementById('delete-index').value);
+			if (index >= 0 && index < ARRAY_SIZE) {
+				deleteModal.classList.remove('active');
+				deleteElement(index);
+			} else {
+				alert('Invalid index!');
+			}
+		});
+
+		// Close Modals on Outside Click
+		window.addEventListener('click', (e) => {
+			if (e.target === insertModal) insertModal.classList.remove('active');
+			if (e.target === deleteModal) deleteModal.classList.remove('active');
+		});
+
+		// Initial Render
+		renderArray();
+	</script>
+</body>
+</html>

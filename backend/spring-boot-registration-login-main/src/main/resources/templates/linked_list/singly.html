@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singly Linked List Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            height: 400px;
+            background: #dfe6e9;
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            border: 2px solid #2ecc71;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .controls input {
+            padding: 5px 10px;
+            width: 300px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #2980b9;
+        }
+
+        .note {
+            padding: 5px;
+            margin-top: 5px;
+            background: pink;
+            display: inline-block;
+            color: black;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Singly Linked List Visualizer</h1>
+    <canvas class='grid' width='1000' height='400'></canvas>
+    <div class="controls">
+        <input class="number" placeholder="Enter element to insert"></input>
+        <button class="insert">Insert</button>
+        <button class="delete">Delete</button>
+    </div>
+    <div class="note">
+        <b>Note: </b>Enter elements to insert (only alphanumeric characters).
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is a Singly Linked List?</summary>
+            <p>
+                A Singly Linked List is a linear data structure consisting of nodes, where each node contains data and a reference to the next node in the sequence. The first node is called the head, and the last node points to null, indicating the end of the list.
+            </p>
+        </details>
+
+        <details>
+            <summary>How does a Singly Linked List work?</summary>
+            <p>
+                In a singly linked list, elements can be added or removed dynamically. Each node points to the next node, allowing for efficient insertion and deletion operations.
+            </p>
+        </details>
+
+        <details>
+            <summary>Applications of Singly Linked List</summary>
+            <ul>
+                <li>Dynamic Memory Allocation: Allows for flexible memory usage.</li>
+                <li>Implementation of Stacks and Queues: Forms the basis for these data structures.</li>
+                <li>Graph Representation: Used in adjacency lists for representing graphs.</li>
+                <li>Undo Functionality: Can store previous states in applications.</li>
+                <li>Music Playlist Management: Manages playlists where songs can be added or removed dynamically.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Insertion:</strong> O(1) for insertion at the beginning, O(n) for insertion at the end.</li>
+                <li><strong>Deletion:</strong> O(1) for deletion from the beginning, O(n) for deletion from the end.</li>
+                <li><strong>Traversal:</strong> O(n) to traverse the entire list.</li>
+                <li><strong>Space Complexity:</strong> O(n) - The space complexity is linear, where n is the number of elements in the list.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // Main
+        let ctx = document.querySelector("canvas").getContext("2d");
+        let linkedList = [];
+        let timeDelay = 1000; // Delay for visualization
+
+        init();
+
+        // Utility
+        function init() {
+            addListeners();
+            drawLinkedList();
+        }
+
+        function addListeners() {
+            document.querySelector(".insert").addEventListener("click", () => {
+                let val = document.querySelector(".number").value.trim();
+                if (val.length === 0) {
+                    alert("Please enter a valid element.");
+                    return;
+                }
+                linkedList.push(val);
+                document.querySelector(".number").value = ""; // Clear input
+                drawLinkedList();
+            });
+
+            document.querySelector(".delete").addEventListener("click", () => {
+                if (linkedList.length === 0) {
+                    alert("Linked List is empty. Cannot delete.");
+                    return;
+                }
+                linkedList.shift(); // Remove the head element
+                drawLinkedList();
+            });
+        }
+
+        function drawLinkedList() {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
+            let rectWidth = 80;
+            let rectHeight = 40;
+            let startX = 10;
+            let startY = (ctx.canvas.height - rectHeight) / 2;
+
+            // Draw the linked list elements
+            linkedList.forEach((element, index) => {
+                ctx.fillStyle = "lightblue";
+                ctx.fillRect(startX + index * (rectWidth + 10), startY, rectWidth, rectHeight);
+                ctx.fillStyle = "black";
+                ctx.fillText(element, startX + index * (rectWidth + 10) + rectWidth / 2, startY + rectHeight / 2 + 5);
+                
+                // Draw arrow to next node
+                if (index < linkedList.length - 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(startX + (index + 1) * (rectWidth + 10) - 10, startY + rectHeight / 2);
+                    ctx.lineTo(startX + (index + 1) * (rectWidth + 10), startY + rectHeight / 2);
+                    ctx.strokeStyle = "black";
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+            });
+
+            // Draw the null pointer at the end
+            ctx.fillStyle = "black";
+            ctx.fillText("null", startX + linkedList.length * (rectWidth + 10) + 10, startY + rectHeight / 2 + 5);
+        }
+    </script>
+</body>
+</html>

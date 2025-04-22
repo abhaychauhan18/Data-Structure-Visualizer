@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Infix To Postfix Visualizer</title>
+	<style>
+		html, * {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			text-align: center;
+			font-family: 'Poppins', sans-serif;
+			background: linear-gradient(135deg, #e0eafc, #cfdef3);
+			padding: 20px;
+		}
+
+		h1 {
+			margin: 20px 0;
+			color: #2c3e50;
+		}
+
+		.grid {
+			width: 1000px;
+			height: 400px;
+			background: #dfe6e9; /* Changed to a more professional color */
+			margin: 40px auto;
+			display: flex;
+			flex-wrap: wrap;
+			border: 2px solid #2ecc71; /* Border color */
+		}
+
+		p {
+			padding: 20px;
+			text-align: center;
+			font-family: ubuntu;
+			font-weight: bolder;
+			font-size: 20px;
+		}
+
+		.number, .evaluate {
+			padding: 5px 10px;
+		}
+
+		.number {
+			width: 300px;
+		}
+
+		.note {
+			padding: 5px;
+			margin-top: 5px;
+			background: pink;
+			display: inline-block;
+			color: black;
+		}
+
+		.controls {
+			margin: 20px 0;
+		}
+
+		.controls button {
+			padding: 10px 20px;
+			background: #3498db; /* Button color */
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background 0.3s;
+		}
+
+		.controls button:hover {
+			background: #2980b9; /* Darker blue on hover */
+		}
+
+		.description {
+			text-align: left;
+			margin-top: 20px;
+			background: #f9f9f9;
+			padding: 1.5rem;
+			border-radius: 10px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			max-width: 800px;
+			margin: 20px auto;
+		}
+
+		details {
+			margin-bottom: 1rem;
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			padding: 1rem;
+		}
+
+		summary {
+			font-size: 1.2rem;
+			font-weight: bold;
+			color: #2c3e50;
+			cursor: pointer;
+		}
+
+		summary:hover {
+			color: #3498db;
+		}
+
+		details p {
+			margin-top: 0.5rem;
+			font-size: 1rem;
+			line-height: 1.6;
+			color: #555;
+		}
+
+		details ul {
+			margin-top: 0.5rem;
+			padding-left: 1.5rem;
+		}
+
+		details ul li {
+			margin-bottom: 0.5rem;
+		}
+	</style>
+</head>
+<body>
+	<h1>Infix To Postfix Visualizer</h1>
+	<canvas class='grid' width='1000' height='400'></canvas>
+	<div class="controls">
+		<input class="number" placeholder="Infix expression"></input>
+		<button class="evaluate">Evaluate</button>
+	</div>
+	<div class="note">
+		<b>Note: </b>Infix expression should only contain &nbsp;&nbsp;&nbsp;<b>a, b, ^, /, *, +, -, (,  )</b>
+	</div>
+
+	<!-- Description Section -->
+	<div class="description">
+		<details>
+			<summary>What is Infix to Postfix Conversion?</summary>
+			<p>
+				Infix to postfix conversion is the process of converting an expression from infix notation (where operators are placed between operands) to postfix notation (where operators follow their operands). For example, the infix expression "A + B" becomes "A B +".
+			</p>
+		</details>
+
+		<details>
+			<summary>How to convert Infix to Postfix?</summary>
+			<p>
+				To convert an infix expression to postfix, you can use the Shunting Yard algorithm developed by Edsger Dijkstra. The algorithm uses a stack to hold operators and ensures that they are output in the correct order.
+			</p>
+			<ul>
+				<li><strong>Step 1:</strong> Initialize an empty stack for operators and an empty output list.</li>
+				<li><strong>Step 2:</strong> Read the infix expression from left to right.</li>
+				<li><strong>Step 3:</strong> If the token is an operand, add it to the output list.</li>
+				<li><strong>Step 4:</strong> If the token is an operator, pop operators from the stack to the output list until the top of the stack has an operator of less precedence.</li>
+				<li><strong>Step 5:</strong> If the token is a left parenthesis, push it onto the stack.</li>
+				<li><strong>Step 6:</strong> If the token is a right parenthesis, pop from the stack to the output list until a left parenthesis is at the top of the stack.</li>
+				<li><strong>Step 7:</strong> At the end of the expression, pop all operators from the stack to the output list.</li>
+			</ul>
+		</details>
+
+		<details>
+			<summary>Applications of Infix to Postfix Expression</summary>
+			<ul>
+				<li>Used in compilers to parse expressions.</li>
+				<li>Evaluating expressions in programming languages.</li>
+				<li>Converting expressions for stack-based evaluation.</li>
+			</ul>
+		</details>
+
+		<details>
+			<summary>Time and Space Complexities</summary>
+			<ul>
+				<li><strong>Time Complexity:</strong> O(n) - The algorithm processes each token in the expression once.</li>
+				<li><strong>Space Complexity:</strong> O(n) - The stack may hold all operators in the worst case.</li>
+			</ul>
+		</details>
+	</div>
+
+	<script>
+		// Main
+		let ctx = document.querySelector("canvas").getContext("2d");
+		let time_delay = 1000;
+		let str = "ab^/*+-()";
+		let priority = {
+			"(": 0, 
+			"+": 1,
+			"-": 1,
+			"/": 2,
+			"*": 2,
+			"^": 3
+		};
+
+		init();
+
+		// Utility
+		function init() {
+			addListeners();
+		}
+
+		function addListeners() {
+			document.querySelector(".evaluate").addEventListener("click", () => {
+				let val = document.querySelector(".number").value;
+				
+				// FILTERING THE STRING
+				if(val.length > 20 || val.length <= 0){
+					alert("Keep the length of expression less than 21 and greater than 0");
+					return;
+				}
+				for(let i = 0; i < val.length; i++) {
+					let count = 0;
+					for(let j = 0; j < str.length; j++) {
+						if(val[i] == str[j]) {
+							count++; break;
+						}
+					}
+					if(count == 0) {
+						alert("Unknown symbol detected");
+						return;
+					}
+				}
+				document.querySelector(".evaluate").disabled = true;
+				infixToPostfix(val);
+			});
+		}
+
+		async function drawAll(i, string, stack, postfix) {
+			let height = ctx.canvas.height / 20;
+			let x = 0;
+			let y = i * height;
+			ctx.beginPath();
+			ctx.fillStyle = "black";
+			ctx.fillRect(x, y, 100, height);
+			ctx.fillStyle = "white";
+			ctx.strokeStyle = "lightgreen";
+			ctx.strokeRect(x, y, 100, height);
+			ctx.font = "bolder 12px ubuntu";
+			if(string.length == 0)
+				ctx.fillText("", x + 100 / 2, y + height / 2);
+			else
+				ctx.fillText(string[i], x + 100 / 2, y + height / 2);
+
+			let w = (ctx.canvas.width - 300) / 20;
+
+			for(let i = 0; i < 20; i++) {
+				ctx.fillStyle = "red";
+				ctx.fillRect(100 + i * w, y, w, height);
+				ctx.strokeStyle = "lightgreen";
+				ctx.strokeRect(100 + i * w, y, w, height);
+			}
+
+			for(let i = 0; i < stack.length; i++) {
+				ctx.fillStyle = "white";
+				ctx.font = "bolder 12px ubuntu";
+				ctx.fillText(stack[i], 100 + i * w + w / 2, y + height / 2);
+			}
+			ctx.fillStyle = "black";
+			ctx.fillRect(ctx.canvas.width - 200, y, 200, height);
+			ctx.fillStyle = "white";
+			ctx.strokeStyle = "lightgreen";
+			ctx.strokeRect(ctx.canvas.width - 200, y, 200, height);
+			ctx.font = "bolder 12px ubuntu";
+			ctx.fillText(postfix, ctx.canvas.width - 200 + 50, y + height / 2);
+			ctx.closePath();
+		}
+
+		async function infixToPostfix(string) {
+			let postfix = "";
+			let stack = [];
+			let i;
+			for(i = 0; i < string.length; i++) {
+				let symbol = string[i];
+				if(symbol == 'a' || symbol == 'b') {
+					postfix += symbol;
+				} else if(stack.length == 0) {
+					stack.push(symbol);
+				} else if(symbol == "(") {
+					stack.push("(");
+				} else if(symbol == ")") {
+					while(stack[stack.length - 1] != "(") {
+						postfix += stack.pop();
+					}
+					stack.pop();
+				} else {
+					while(stack.length != 0 && priority[symbol] <= priority[stack[stack.length - 1]]) {
+						postfix += stack.pop();
+					}
+					stack.push(symbol);
+				}
+				await sleep(time_delay).then(() => {
+					drawAll(i, string, stack, postfix);
+				});
+			}
+
+			while(stack.length != 0) {
+				postfix += stack.pop();
+				await sleep(time_delay).then(() => {
+					drawAll(i, "", stack, postfix);
+				});
+				i++;
+			}
+		}
+
+		function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+	</script>
+	
+	<script>
+		
+		if ('WebSocket' in window) {
+			(function () {
+				function refreshCSS() {
+					var sheets = [].slice.call(document.getElementsByTagName("link"));
+					var head = document.getElementsByTagName("head")[0];
+					for (var i = 0; i < sheets.length; ++i) {
+						var elem = sheets[i];
+						var parent = elem.parentElement || head;
+						parent.removeChild(elem);
+						var rel = elem.rel;
+						if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+							var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+							elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+						}
+						parent.appendChild(elem);
+					}
+				}
+				var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+				var address = protocol + window.location.host + window.location.pathname + '/ws';
+				var socket = new WebSocket(address);
+				socket.onmessage = function (msg) {
+					if (msg.data == 'reload') window.location.reload();
+					else if (msg.data == 'refreshcss') refreshCSS();
+				};
+				if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+					console.log('Live reload enabled.');
+					sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+				}
+			})();
+		}
+		else {
+			console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+		}
+		// ]]>
+	</script>
+</body>
+</html>

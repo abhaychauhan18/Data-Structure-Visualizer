@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Using Linked List Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            position: relative;
+            height: 500px;
+            background: lightgreen;
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            outline: 1px solid red;
+        }
+
+        p, p:nth-child(1) {
+            padding: 5px 20px;
+            text-align: center;
+            font-weight: bolder;
+            font-size: 20px;
+        }
+
+        .stack__controllers {
+            max-width: 500px;
+            margin: auto;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stack__push, .stack__pop, .stack__peek {
+            padding: 10px 30px;
+        }
+
+        .stack__peek__input {
+            width: 60px;
+            padding: 10px;
+        }
+
+        .color__scheme {
+            display: flex;
+            padding: 10px;
+            justify-content: space-between;
+            border: 1px solid lightgreen;
+            margin-right: 5px;
+        }
+
+        .color__scheme > span:nth-child(1) {
+            height: 20px;
+            width: 20px;
+            padding: 5px;
+            margin-right: 20px;
+            background: lightgreen;
+        }
+
+        .color__scheme > span:nth-child(2) {
+            font-weight: bolder;
+            color: gray;
+            margin: 0px 20px 0 0;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stack Using Linked List Visualizer</h1>
+    <canvas class='grid' width='1000' height='400px'></canvas>
+
+    <div class="stack__controllers">
+        <div class="color__scheme">
+            <span></span>
+            <span>Top</span>
+        </div>
+        <button class="stack__push">PUSH</button>
+        <button class="stack__pop">POP</button>
+        <div>
+            <input type="number" class="stack__peek__input" placeholder="Peek Value" value="0" name="peek">
+            <button class="stack__peek">PEEK</button>
+        </div>		
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is a Stack?</summary>
+            <p>
+                A Stack is a linear data structure that follows the Last In First Out (LIFO) principle. Elements can be added or removed from only one end, called the "top" of the stack. This structure is often implemented using linked lists or arrays.
+            </p>
+        </details>
+
+        <details>
+            <summary>How does a Stack work?</summary>
+            <p>
+                In this visualizer, you can push elements onto the stack, pop elements from the top, and peek at the top element. The visual representation updates dynamically to show the current state of the stack.
+            </p>
+        </details>
+
+        <details>
+            <summary>Applications of Stack</summary>
+            <ul>
+                <li>Function Call Management: Keeps track of function calls in programming languages.</li>
+                <li>Undo Mechanism: Used in applications to manage undo operations.</li>
+                <li>Expression Evaluation: Helps in parsing expressions and syntax checking.</li>
+                <li>Backtracking Algorithms: Used in algorithms like depth-first search.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Insertion (Push):</strong> O(1) - Adding an element to the top of the stack is done in constant time.</li>
+                <li><strong>Deletion (Pop):</strong> O(1) - Removing the top element is also done in constant time.</li>
+                <li><strong>Peek:</strong> O(1) - Accessing the top element is done in constant time.</li>
+                <li><strong>Space Complexity:</strong> O(n) - The space complexity is linear, where n is the number of elements in the stack.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // MAIN
+        let arr = [];
+        const max = 100;
+        const size = 7;
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext("2d");
+        const stack = [];
+        const rect = { width: 60, height: 22 };
+        const stackWidth = 200;
+
+        init();
+        animate();
+
+        // Utility Functions
+        function randomizeArray() {
+            arr = [];
+            for (let i = 0; i < size; i++) {
+                arr.push(Math.floor(Math.random() * max + 1));
+            }
+        }
+
+        function init() {	
+            randomizeArray();
+            createStack();
+            document.querySelector(".stack__push").addEventListener("click", push);
+            document.querySelector(".stack__pop").addEventListener("click", pop);
+            document.querySelector(".stack__peek").addEventListener("click", () => {
+                const val = +document.querySelector(".stack__peek__input").value;
+                peek(val);
+            });
+        }
+
+        function createStack() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(canvas.width - stackWidth, 0, stackWidth, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(canvas.width - stackWidth, canvas.height - rect.height / 2, stackWidth, 1);
+            ctx.font = 'bolder 9px ubuntu';	
+            ctx.fillText("STACK", canvas.width - stackWidth / 2 - 15, canvas.height - 1);
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = 'lightgreen';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animate() {
+            clearCanvas();
+            createStack();
+            drawArray();
+            drawStack();
+        }
+
+        function drawArray() {
+            arr.forEach((e, i) => {
+                ctx.fillStyle = "black";	
+                ctx.fillRect(i * rect.width + i + 10, canvas.height / 2, rect.width, rect.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 15px ubuntu';
+                ctx.fillText(`${e}`, i * rect.width + i + rect.width / 2 + 10, canvas.height / 2 + rect.height * (3 / 4));
+            });
+        }
+
+        function drawStack() {
+            stack.forEach((e, i) => {
+                ctx.fillStyle = (i === stack.length - 1) ? "lightgreen" : "white";
+                let h = canvas.height - rect.height - i * (rect.height / 2) - i * 8;
+                ctx.fillRect(canvas.width - stackWidth + 5, h - 1, stackWidth - 10, rect.height / 2);
+                ctx.fillStyle = 'red';
+                ctx.font = 'bold 12px ubuntu';
+                ctx.fillText(`${e}`, canvas.width - stackWidth / 2, h + rect.height / 2 - 1);
+                ctx.fillStyle = 'black';
+                if (i !== 0) {
+                    ctx.strokeStyle = "yellow";
+                    ctx.lineWidth = 3;
+                    ctx.moveTo(canvas.width - stackWidth / 2 + 5, h + 10);
+                    ctx.lineTo(canvas.width - stackWidth / 2 + 5, h + 19);
+                    ctx.lineTo(canvas.width - stackWidth / 2 + 5 - 5, h + 19 - 5);
+                    ctx.moveTo(canvas.width - stackWidth / 2 + 5, h + 19);
+                    ctx.lineTo(canvas.width - stackWidth / 2 + 5 + 5, h + 19 - 5);
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function push() {
+            if (stack.length === size) {
+                alert("Stack overflow");
+            } else if (arr.length === 0) {
+                alert("No element is present to push");
+            } else {
+                stack.push(arr.shift());
+                animate();
+            }
+        }
+
+        function pop() {
+            if (stack.length === 0) {
+                alert("Empty stack, please push something to pop");
+            } else {
+                stack.pop();
+                animate();
+            }
+        }
+
+        async function peek(val) {
+            if (val < stack.length) {
+                let i = stack.length - val - 1;
+                let h = canvas.height - rect.height - i * (rect.height / 2) - i * 8 - i - 1;
+                await sleep(500);
+                highlight(h, stack[i], "red", "white");
+                await sleep(500);
+                highlight(h, stack[i]);
+            } else {
+                alert("Peek value should be less than the stack size");
+            }
+        }
+
+        function highlight(h, val, rectColor = "white", textColor = "red") {
+            ctx.fillStyle = rectColor;
+            ctx.fillRect(canvas.width - stackWidth + 5, h, stackWidth - 10, rect.height / 2);
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 12px ubuntu';
+            ctx.fillText(`${val}`, canvas.width - stackWidth / 2, h + rect.height / 2 - 1);
+            ctx.fillStyle = 'black';
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

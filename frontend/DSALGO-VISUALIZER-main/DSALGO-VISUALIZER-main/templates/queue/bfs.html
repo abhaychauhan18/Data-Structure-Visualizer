@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFS Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            position: relative;
+            background: lightgreen;
+            margin: 10px auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        p {
+            padding: 10px;
+            text-align: center;
+            font-family: ubuntu;
+            font-weight: bolder;
+            font-size: 20px;
+        }
+
+        .head__button {
+            padding: 5px 30px;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>BFS Visualizer</h1>
+    <canvas class='grid' width="1200" height="600"></canvas>
+    <p>
+        <button class="head__button graph">Original Graph</button>
+        <button class="head__button bfs">BFS</button>
+    </p>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is BFS?</summary>
+            <p>
+                Breadth-First Search (BFS) is an algorithm for traversing or searching tree or graph data structures. It starts at the root (or an arbitrary node) and explores all of the neighbor nodes at the present depth prior to moving on to nodes at the next depth level.
+            </p>
+        </details>
+
+        <details>
+            <summary>How does BFS work?</summary>
+            <p>
+                BFS uses a queue to keep track of the nodes that need to be explored. It marks nodes as visited and explores all adjacent nodes before moving to the next level of nodes.
+            </p>
+        </details>
+
+        <details>
+            <summary>Applications of BFS</summary>
+            <ul>
+                <li>Finding the shortest path in unweighted graphs.</li>
+                <li>Web crawling and social networking applications.</li>
+                <li>Broadcasting in networks.</li>
+                <li>Finding connected components in a graph.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Time Complexity:</strong> O(V + E), where V is the number of vertices and E is the number of edges.</li>
+                <li><strong>Space Complexity:</strong> O(V), for storing the queue and visited nodes.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // Main
+        const arr = ['a', 'b', 'c', 'd', 'e', 'f'];
+        const size = arr.length;
+        const edge = [];
+        const bfs_edge = [];
+        const visited = [];
+        const t = [];
+        const dimension = 30;
+        const rel = 15;
+        const ctx = document.querySelector("canvas").getContext("2d");
+        const time_delay = 1000;
+        const dx = (ctx.canvas.width - 500) / size;
+        const dy = ctx.canvas.height / size;
+        const each = Array.from({ length: size }, () => Math.floor(Math.random() * (size - 1)) + 1);
+
+        create_edges();
+        init();
+
+        // Utility
+        function init() {
+            document.querySelector(".bfs").addEventListener("click", async () => {
+                for (let i = 0; i < size; i++) visited.push(false);
+                if (visited.filter(el => el === true).length === 0) {
+                    await bfs(0);
+                }
+                await create_graph(bfs_edge);
+                for (let i = 0; i < t.length; i++) {
+                    await sleep(time_delay).then(() => {
+                        createShell(i, arr[t[i]]);
+                    });
+                }
+            });
+
+            document.querySelector(".graph").addEventListener("click", () => {
+                create_graph(edge);
+            });
+        }
+
+        async function bfs(x) {
+            const s = [];
+            s.push(x);
+            visited[x] = true;
+            while (s.length !== 0) {
+                x = s.shift();
+                t.push(x);
+                for (let j = 0; j < size; j++) {
+                    if (!visited[j] && edge[x][j]) {
+                        bfs_edge[x][j] = 1;
+                        bfs_edge[j][x] = 1;
+                        await sleep(time_delay).then(() => {
+                            createLine(x, j, "white");
+                            createBox(x);
+                            createBox(j);
+                            createText(x);
+                            createText(j);
+                        });
+                        s.push(j);
+                        visited[j] = true;
+                    }
+                }
+            }
+        }
+
+        async function createShell(i, val) {
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.strokeStyle = "white";
+            ctx.fillRect(ctx.canvas.width - 200, ctx.canvas.height - (i + 1) * 80, 180, 70);
+            ctx.fillStyle = "white";
+            ctx.fillText(val, ctx.canvas.width - 200 + 90, ctx.canvas.height - (i + 1) * 80 + 35);
+            ctx.closePath();
+        }
+
+        function create_edges() {
+            for (let i = 0; i < size; i++) {
+                const temp = Array(size).fill(0);
+                edge.push(temp);
+                bfs_edge.push(Array(size).fill(0));
+            }
+
+            for (let i = 0; i < size; i++) {
+                for (let j = i; j < size; j++) {
+                    const p = Math.floor(Math.random() * 2);
+                    edge[i][j] = p;
+                    edge[j][i] = p;
+                }
+            }
+        }
+
+        async function createLine(i, j, color = "black") {
+            ctx.strokeStyle = color;
+            const x1 = each[i] * dx + dimension / 2 + rel;
+            const y1 = i * dy + dimension / 2 + rel;
+            const x2 = each[j] * dx + dimension / 2 + rel;
+            const y2 = j * dy + dimension / 2 + rel;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineWidth = 4;
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        async function createBox(i, color = "red") {
+            ctx.fillStyle = color;
+            const x = each[i] * dx + (dimension / 2) + rel;
+            const y = i * dy + dimension / 2 + rel;
+            ctx.beginPath();
+            ctx.arc(x, y, dimension, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        async function createText(i, color = "white") {
+            const x = each[i] * dx + (dimension / 2) + rel;
+            const y = i * dy + dimension / 2 + rel;
+            ctx.fillStyle = 'white';
+            ctx.font = 'bolder 25px ubuntu';
+            ctx.fillText(arr[i], x, y);
+        }
+
+        async function create_graph(edge) {
+            ctx.fillStyle = "lightgreen";
+            ctx.fillRect(0, 0, ctx.canvas.width - 200, ctx.canvas.height);
+            for (let i = 0; i < size; i++) {
+                for (let j = i; j < size; j++) {
+                    if (edge[i][j] === 1) {
+                        createLine(i, j);
+                    }
+                }
+            }
+            for (let i = 0; i < size; i++) {
+                createBox(i, "red");
+            }
+            for (let i = 0; i < size; i++) {
+                createText(i, "white");
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Data Structure Visualizer</title>
+    <style>
+        html, * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .grid {
+            width: 1000px;
+            height: 400px;
+            background: #dfe6e9;
+            margin: 40px auto;
+            display: flex;
+            flex-wrap: wrap;
+            border: 2px solid #2ecc71;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .controls input {
+            padding: 5px 10px;
+            width: 300px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #2980b9;
+        }
+
+        .note {
+            padding: 5px;
+            margin-top: 5px;
+            background: pink;
+            display: inline-block;
+            color: black;
+        }
+
+        .description {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        details {
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        summary {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        summary:hover {
+            color: #3498db;
+        }
+
+        details p {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        details ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        details ul li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Queue Data Structure Visualizer</h1>
+    <canvas class='grid' width='1000' height='400'></canvas>
+    <div class="controls">
+        <input class="number" placeholder="Enter element to enqueue"></input>
+        <button class="enqueue">Enqueue</button>
+        <button class="dequeue">Dequeue</button>
+    </div>
+    <div class="note">
+        <b>Note: </b>Enter elements to enqueue (only alphanumeric characters).
+    </div>
+
+    <!-- Description Section -->
+    <div class="description">
+        <details>
+            <summary>What is a Queue?</summary>
+            <p>
+                A queue is a linear data structure that follows the First In First Out (FIFO) principle, meaning that the first element added to the queue will be the first one to be removed.
+            </p>
+        </details>
+
+        <details>
+            <summary>How does a Queue work?</summary>
+            <p>
+                In a queue, elements are added at the rear and removed from the front. This structure is commonly used in scenarios where order needs to be preserved, such as task scheduling and resource management.
+            </p>
+        </details>
+
+        <details>
+            <summary>Applications of Queue</summary>
+            <ul>
+                <li>Task Scheduling: Operating systems use queues to manage processes and tasks.</li>
+                <li>Print Queue: In printers, documents are queued for printing in the order they are received.</li>
+                <li>Call Center Systems: Calls are queued to be answered in the order they are received.</li>
+                <li>Buffering: Queues are used in buffering data streams, such as in IO operations.</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Time and Space Complexities</summary>
+            <ul>
+                <li><strong>Time Complexity:</strong> O(1) for enqueue and dequeue operations in a linked list implementation.</li>
+                <li><strong>Space Complexity:</strong> O(n) - The space complexity is linear, where n is the number of elements in the queue.</li>
+            </ul>
+        </details>
+    </div>
+
+    <script>
+        // Main
+        let ctx = document.querySelector("canvas").getContext("2d");
+        let queue = [];
+        let maxQueueSize = 10; // Maximum size of the queue
+        let timeDelay = 1000; // Delay for visualization
+
+        init();
+
+        // Utility
+        function init() {
+            addListeners();
+            drawQueue();
+        }
+
+        function addListeners() {
+            document.querySelector(".enqueue").addEventListener("click", () => {
+                let val = document.querySelector(".number").value.trim();
+                if (val.length === 0) {
+                    alert("Please enter a valid element.");
+                    return;
+                }
+                if (queue.length >= maxQueueSize) {
+                    alert("Queue is full. Cannot enqueue more elements.");
+                    return;
+                }
+                queue.push(val);
+                document.querySelector(".number").value = ""; // Clear input
+                drawQueue();
+            });
+
+            document.querySelector(".dequeue").addEventListener("click", () => {
+                if (queue.length === 0) {
+                    alert("Queue is empty. Cannot dequeue.");
+                    return;
+                }
+                queue.shift(); // Remove the front element
+                drawQueue();
+            });
+        }
+
+        function drawQueue() {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
+            let rectWidth = 80;
+            let rectHeight = 40;
+            let startX = 10;
+            let startY = (ctx.canvas.height - rectHeight) / 2;
+
+            // Draw the queue elements
+            queue.forEach((element, index) => {
+                ctx.fillStyle = "lightblue";
+                ctx.fillRect(startX + index * (rectWidth + 10), startY, rectWidth, rectHeight);
+                ctx.fillStyle = "black";
+                ctx.fillText(element, startX + index * (rectWidth + 10) + rectWidth / 2, startY + rectHeight / 2 + 5);
+            });
+
+            // Draw the queue boundaries
+            ctx.strokeStyle = "green";
+            ctx.strokeRect(5, startY - 5, ctx.canvas.width - 10, rectHeight + 10);
+        }
+    </script>
+</body>
+</html>
