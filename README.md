@@ -17,7 +17,7 @@ Built with Java (Spring Boot) for backend and HTML/CSS/JS for frontend.
 - Clean and responsive UI
 
 ## 🛠️ Tech Stack
-- Java, Spring Boot, Thymeleaf
+- Java, Spring Boot
 - HTML, CSS, JavaScript
 
 ---
